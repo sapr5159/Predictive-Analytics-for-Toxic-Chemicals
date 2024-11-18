@@ -30,4 +30,7 @@ combined_df = pd.concat(dataframes, ignore_index=True)
 combined_csv_path = 'combined_tri_data_2014_2023.csv'
 combined_df.to_csv(combined_csv_path, index=False)
 print(f"Combined CSV saved to {combined_csv_path}")
-
+data=pd.read_csv('combined_tri_data_2014_2023.csv',low_memory=False)
+data.shape
+print("Total number of rows and columns before exploration: ",data.shape)
+data.head()
