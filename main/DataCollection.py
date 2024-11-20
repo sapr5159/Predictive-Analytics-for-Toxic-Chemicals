@@ -13,10 +13,10 @@ os.makedirs(output_dir1, exist_ok=True)
 for year in range(2003, 2024):
     download_url = f"{base_url}{year}{suffix_url}"
     file_name = f"tri_data_{year}.csv"
-    if year > 2013:
+    if year <= 2013:
         file_path = os.path.join(output_dir, file_name) 
     else:
-        file_path = os.path.join(output_dir1, file_name) 
+        file_path = os.path.join(output_dir1, file_name)
     if os.path.exists(file_path):
         print(f"The file '{file_name}' already exists. Skipping download.")
     else:
