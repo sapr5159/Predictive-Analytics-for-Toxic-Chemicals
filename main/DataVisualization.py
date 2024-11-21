@@ -213,3 +213,26 @@ variable_to_analyze = data['TOTAL RELEASES']
 sm.qqplot(variable_to_analyze, line='s')
 plt.title('QQ Plot of Total Releases')
 plt.show()
+
+# Plotting number of facilities by state
+plt.figure(figsize=(12, 8))
+sns.countplot(y='ST', data=data, order=data['ST'].value_counts().index)
+plt.title("Number of Facilities by State")
+plt.xlabel("Count")
+plt.ylabel("State")
+plt.show()
+
+# Relationship between CARCINOGEN and TOTAL RELEASES
+plt.figure(figsize=(8, 6))
+sns.boxplot(data=data, x='CARCINOGEN', y='TOTAL RELEASES')
+plt.title("Total Releases by Carcinogen Classification")
+plt.show()
+
+industry_trends = data.groupby(['YEAR', 'INDUSTRY SECTOR CODE'])['TOTAL RELEASES'].sum().reset_index()
+plt.figure(figsize=(12, 8))
+sns.lineplot(data=industry_trends, x='YEAR', y='TOTAL RELEASES', hue='INDUSTRY SECTOR CODE')
+plt.title('Trend of Toxic Releases by Industry (2003 - Present)')
+plt.ylabel('Total Release Amount')
+plt.xlabel('Year')
+plt.legend(title='Industry Sector', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.show()
