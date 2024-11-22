@@ -235,6 +235,20 @@ print("Columns list for combained data: ",cleaned_data_total.columns)
 missing_values = cleaned_data_total.isnull().sum()
 print("Missing values in Combained data: ",missing_values)
 # Drop irrelevant columns
+
+
+columns_to_combine = ['ENERGY RECOVER ON', 'ENERGY RECOVER OF', 'RECYCLING ON SITE',
+                     'RECYCLING OFF SIT', 'TREATMENT ON SITE', 'TREATMENT OFF SITE']
+
+cleaned_data_total['TOTAL OTHER TREATMENT'] = cleaned_data_total[columns_to_combine].sum(axis=1)
+
+cleaned_data_total = cleaned_data_total.drop(columns=columns_to_combine, errors='ignore')
+# Filter rows where 'Total release' is 0
+cleaned_data_total = cleaned_data_total[(cleaned_data_total['TOTAL RELEASES'] != 0) | (cleaned_data_total['TOTAL OTHER TREATMENT'] != 0)]
+
+print("Final Data total releases report:\n",cleaned_data_total['TOTAL RELEASES'].describe())
+
+print("Final Data total other treatment report:\n",cleaned_data_total['TOTAL OTHER TREATMENT'].describe())
 df = cleaned_data_total.drop(columns=['TRIFD', 'CITY', 'LATITUDE', 'LONGITUDE', 
                       'PARENT CO NAME', 'PARENT CO DB NUM', 'ONE-TIME RELEASE', 
                       'PROD_RATIO_OR_ ACTIVITY', 'FEDERAL FACILITY'])
