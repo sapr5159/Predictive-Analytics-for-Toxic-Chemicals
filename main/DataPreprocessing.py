@@ -235,7 +235,36 @@ print("Columns list for combained data: ",cleaned_data_total.columns)
 missing_values = cleaned_data_total.isnull().sum()
 print("Missing values in Combained data: ",missing_values)
 # Drop irrelevant columns
+
+
+columns_to_combine = ['ENERGY RECOVER ON', 'ENERGY RECOVER OF', 'RECYCLING ON SITE',
+                     'RECYCLING OFF SIT', 'TREATMENT ON SITE', 'TREATMENT OFF SITE']
+
+cleaned_data_total['TOTAL OTHER TREATMENT'] = cleaned_data_total[columns_to_combine].sum(axis=1)
+
+cleaned_data_total = cleaned_data_total.drop(columns=columns_to_combine, errors='ignore')
+# Filter rows where 'Total release' is 0
+cleaned_data_total = cleaned_data_total[(cleaned_data_total['TOTAL RELEASES'] != 0) | (cleaned_data_total['TOTAL OTHER TREATMENT'] != 0)]
+
+print("Final Data total releases report:\n",cleaned_data_total['TOTAL RELEASES'].describe())
+
+print("Final Data total other treatment report:\n",cleaned_data_total['TOTAL OTHER TREATMENT'].describe())
 df = cleaned_data_total.drop(columns=['TRIFD', 'CITY', 'LATITUDE', 'LONGITUDE', 
                       'PARENT CO NAME', 'PARENT CO DB NUM', 'ONE-TIME RELEASE', 
                       'PROD_RATIO_OR_ ACTIVITY', 'FEDERAL FACILITY'])
+carcinogens_yes = df[df['CARCINOGEN'] == 'YES']['CHEMICAL'].unique()
+carcinogens_no = df[df['CARCINOGEN'] == 'NO']['CHEMICAL'].unique()
+for chemical in carcinogens_yes:
+    df.loc[df['CHEMICAL'] == chemical, 'CARCINOGEN'] = df.loc[df['CHEMICAL'] == chemical, 'CARCINOGEN'].fillna('YES')
+
+for chemical in carcinogens_no:
+    df.loc[df['CHEMICAL'] == chemical, 'CARCINOGEN'] = df.loc[df['CHEMICAL'] == chemical, 'CARCINOGEN'].fillna('NO')
+
+df['AIR RELEASES'] = df['FUGITIVE AIR'] + df['STACK AIR']
+# Combine 'UNDERGROUND', 'LANDFILLS', 'LAND TREATMENT', 'SURFACE IMPNDMNT' into a single column
+df['LAND RELEASES'] = df['UNDERGROUND'] + df['LANDFILLS'] + df['LAND TREATMENT'] + df['SURFACE IMPNDMNT']
+# Combine 'ON-SITE RELEASE TOTAL', 'TREATMENT ON SITE','ENERGY RECOVER ON', 'RECYCLING ON SITE' into 'TOTAL ON-SITE'
+df['TOTAL ON-SITE'] = df['ON-SITE RELEASE TOTAL'] + df['TREATMENT ON SITE'] + df['ENERGY RECOVER ON'] + df['RECYCLING ON SITE']
+df['ON-SITE OTHER TREATMENT'] = df['ENERGY RECOVER ON']+df['RECYCLING ON SITE']+df['TREATMENT ON SITE']
+df['OFF-SITE OTHER TREATMENT']=df['ENERGY RECOVER OF']+df['RECYCLING OFF SIT']+df['TREATMENT OFF SITE']
 df.to_csv('cleaned_data_dropped.csv', index=False)
